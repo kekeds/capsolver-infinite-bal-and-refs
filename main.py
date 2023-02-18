@@ -1,5 +1,6 @@
 import httpx, random, string, time, os, ctypes, tls_client
 import concurrent.futures
+from account_generator_helper import GmailNator
 from colorama import Fore
 
 os.system("cls")
@@ -26,16 +27,6 @@ headers={
     "sec-fetch-site": "cross-site",
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
 }
-
-class temp_mail():
-    def generate(proxy):  
-        email = httpx.get("https://api.tempmail.lol/generate",timeout=10000,proxies=proxy).json()
-        
-        return email["address"], email["token"]
-    
-    def read(token,proxy):
-        emails = httpx.get(f"https://api.tempmail.lol/auth/{token}",timeout=5000,proxies=proxy).json()
-        return emails
 
 class other():
     def get_proxy():
@@ -96,20 +87,17 @@ class capsolver():
 
     def make_account(proxy):
         global accounts_made, balance_total
-        email,token=temp_mail.generate(proxy)
+        mail = GmailNator(proxy="http://" + random.choice(open("proxies.txt","r").read().splitlines()))
+        email = mail.get_email_online(True,True,True)
+        mail.set_email(email)
         print(f"{Fore.LIGHTMAGENTA_EX}{email}")
         status=capsolver.send(email,proxy)
         
         if status:
             print(f"{Fore.YELLOW}Sent email")
-            while True:
-                emails=temp_mail.read(token,proxy)
-                if emails=={"email":[]}:
-                    time.sleep(0.4)
-                    continue
-                else:
-                    code=emails["email"][0]["body"].split("30 minutes:\n\n")[1].split("\n\nIf you didn")[0]
-                    break
+            while len(mail.get_inbox()) == 0:
+                pass
+            code=mail.get_inbox()[0].letter.split('<center style="color: #ffffff; font-family: sans-serif; font-size: 15px;">')[1].split("</center>")[0].replace(' ', '').replace('\r', '').replace('\n', '')
 
             print(f"{Fore.CYAN}Got code --> {code}")
             password=''.join(random.sample(string.ascii_letters+string.digits,10))
