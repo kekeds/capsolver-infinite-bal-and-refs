@@ -87,7 +87,7 @@ class capsolver():
 
     def make_account(proxy):
         global accounts_made, balance_total
-        mail = GmailNator(proxy=proxy)
+        mail = GmailNator(proxy="http://" + random.choice(open("proxies.txt","r").read().splitlines()))
         email = mail.get_email_online(True,True,True)
         mail.set_email(email)
         print(f"{Fore.LIGHTMAGENTA_EX}{email}")
